@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f5132">
+<title>ورد الحفّاظ</title>
+<style>
+:root{--g:#0f5132;--g2:#198754;--gold:#c9a227;--bg:#f4f1e8;--card:#fff;--txt:#1f2a24;--mut:#6b776f;
+--done:#198754;--doneBg:#d6f1de;--part:#e08e00;--partBg:#ffedcc;--miss:#c0392b;--missBg:#f9d9d6;--plan:#2f6db3;--planBg:#e2ecf8}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--txt);font-size:16px;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+.hide{display:none!important}
+.top{position:sticky;top:0;z-index:20;background:var(--g);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+.top h1{font-family:'Traditional Arabic','Times New Roman',serif;font-size:1.8rem;color:#e8c14a;text-align:center;line-height:1.1}
+.mnav{display:flex;align-items:center;gap:6px;margin-top:8px}
+.mnav select{flex:1;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:10px;padding:8px;font-size:1rem}
+.mnav select option{color:#000}
+.ib{min-width:42px;height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font-size:1.3rem;cursor:pointer}
+.saved{font-size:.72rem;text-align:center;opacity:.8;margin-top:4px}
+.wrap{max-width:720px;margin:0 auto;padding:12px}
+.card{background:var(--card);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:14px;margin-bottom:12px}
+.ttl{font-weight:700;color:var(--g);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.wd{text-align:center;font-size:.72rem;color:var(--mut);font-weight:700;padding:2px 0}
+.day{aspect-ratio:1/1.08;border-radius:12px;border:2px solid #ece8dc;background:#fbfaf6;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;padding:2px}
+.day .d{font-weight:700;font-size:1.05rem;line-height:1}
+.day .p{font-size:.66rem;font-weight:700;margin-top:3px}
+.day .nt{position:absolute;top:2px;left:4px;font-size:.6rem}
+.day.empty{background:none;border:none;cursor:default}
+.day.today .d{background:var(--gold);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+.day.cur{outline:3px solid var(--gold);outline-offset:1px}
+.st-done{background:var(--doneBg)!important;border-color:var(--done)!important} .st-done .p{color:var(--done)}
+.st-part{background:var(--partBg)!important;border-color:var(--part)!important} .st-part .p{color:var(--part)}
+.st-miss{background:var(--missBg)!important;border-color:var(--miss)!important} .st-miss .p{color:var(--miss)}
+.st-plan{background:var(--planBg)!important;border-color:var(--plan)!important} .st-plan .p{color:var(--plan)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:10px;font-size:.75rem;color:var(--mut)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin-left:4px;border:2px solid}
+.dtitle{font-size:1.1rem;font-weight:700}
+.goal{background:#f7f5ee;border-radius:12px;padding:10px 12px;margin:10px 0;line-height:1.7}
+.goal b{color:var(--g)}
+.pbar{height:12px;background:#e9e4d4;border-radius:10px;overflow:hidden;margin:8px 0}
+.pbar div{height:100%;width:0;transition:width .3s}
+.msg{padding:12px 14px;border-radius:12px;line-height:1.8;font-size:.95rem;margin-top:10px}
+.msg small{display:block;color:var(--mut);font-size:.8rem;margin-top:2px}
+.m-done{background:var(--doneBg);border-right:5px solid var(--done)}
+.m-part{background:var(--partBg);border-right:5px solid var(--part)}
+.m-miss{background:var(--missBg);border-right:5px solid var(--miss)}
+.m-plan{background:var(--planBg);border-right:5px solid var(--plan)}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{flex:1 1 auto;min-height:46px;padding:10px 14px;border-radius:12px;border:1px solid #d9d3c2;background:#fff;cursor:pointer;font-weight:600;font-size:.95rem}
+.btn.pri{background:var(--g);border-color:var(--g);color:#fff}
+.btn.ok{background:var(--done);border-color:var(--done);color:#fff}
+.btn.warn{background:var(--part);border-color:var(--part);color:#fff}
+.btn.no{background:#fff;border-color:var(--miss);color:var(--miss)}
+.btn.sm{min-height:36px;padding:6px 10px;font-size:.85rem;flex:0 0 auto}
+.btn:active{transform:scale(.97)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:#f7f5ee;border-radius:12px;padding:10px 4px;text-align:center}
+.stat b{display:block;font-size:1.45rem;color:var(--g)}
+.stat span{font-size:.75rem;color:var(--mut)}
+.months{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mo{border-radius:12px;padding:10px 4px;text-align:center;border:2px solid #ece8dc;background:#fbfaf6;cursor:pointer;font-size:.8rem}
+.mo b{display:block;font-size:.95rem;margin-bottom:2px}
+.gl{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid #f0ede4}
+.gl:last-child{border-bottom:none}
+.gl .dot{width:12px;height:12px;border-radius:50%;flex:0 0 12px}
+.gl .tx{flex:1;min-width:0}
+.gl .tx b{display:block;font-size:.92rem}
+.gl .tx span{display:block;font-size:.8rem;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icb{width:40px;height:40px;border-radius:10px;border:1px solid #e3ded0;background:#fff;cursor:pointer;font-size:1rem;flex:0 0 40px}
+.empty-t{color:var(--mut);text-align:center;padding:16px;font-size:.9rem}
+.sr{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid #f0ede4}
+.sr .n{width:34px;height:34px;border-radius:50%;background:#f4f1e8;color:var(--g);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex:0 0 34px}
+.sr .nm{flex:1}
+.sr .nm b{display:block}
+.sr .nm span{font-size:.78rem;color:var(--mut)}
+.sr .hz{font-weight:700;color:var(--g);font-size:.9rem;text-align:left}
+.inp{width:100%;padding:11px 12px;border:1px solid #d9d3c2;border-radius:12px;background:#fff;font-size:1rem}
+.lbl{display:block;font-weight:700;color:var(--g);margin:14px 0 6px;font-size:.95rem}
+.seg{display:flex;background:#efebdf;border-radius:12px;padding:4px;gap:4px}
+.seg button{flex:1;border:none;background:none;border-radius:9px;padding:10px 6px;font-weight:600;cursor:pointer;font-size:.9rem}
+.seg button.on{background:#fff;color:var(--g);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.step{display:flex;align-items:center;gap:8px}
+.step button{width:48px;height:48px;border-radius:12px;border:1px solid #d9d3c2;background:#fff;font-size:1.4rem;cursor:pointer;flex:0 0 48px}
+.step input{text-align:center;font-size:1.3rem;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{border:1px solid #d9d3c2;background:#fff;border-radius:20px;padding:6px 14px;cursor:pointer;font-size:.88rem}
+.slist{max-height:38vh;overflow:auto;border:1px solid #ece8dc;border-radius:12px;margin-top:8px;-webkit-overflow-scrolling:touch}
+.sit{display:flex;align-items:center;gap:10px;padding:11px 12px;border-bottom:1px solid #f3f0e8;cursor:pointer}
+.sit input{width:22px;height:22px;accent-color:var(--g2);flex:0 0 22px}
+.sit .h{margin-right:auto;color:var(--mut);font-size:.8rem;white-space:nowrap}
+.sum{background:#f7f5ee;border-radius:10px;padding:8px 12px;margin-top:8px;font-size:.9rem}
+textarea.inp{min-height:70px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.wdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.wdays label{display:flex;flex-direction:column;align-items:center;font-size:.7rem;background:#f7f5ee;border-radius:8px;padding:6px 0;cursor:pointer}
+.wdays input{width:20px;height:20px;accent-color:var(--g2);margin-top:4px}
+.chk{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.9rem;cursor:pointer}
+.chk input{width:20px;height:20px;accent-color:var(--g2)}
+.ov{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:50;display:none}
+.ov.show{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;background:#fff;border-radius:20px 20px 0 0;padding:8px 16px calc(16px + env(safe-area-inset-bottom));max-width:720px;margin:0 auto;-webkit-overflow-scrolling:touch}
+.grab{width:44px;height:5px;background:#ddd;border-radius:5px;margin:4px auto 10px}
+.sheet h2{font-size:1.15rem;color:var(--g);margin-bottom:4px}
+.sheet .sub{font-size:.85rem;color:var(--mut)}
+.sfoot{position:sticky;bottom:calc(-16px - env(safe-area-inset-bottom));background:#fff;padding:10px 0 4px;margin-top:10px;display:flex;gap:8px;border-top:1px solid #f0ede4}
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:#fff;border-top:1px solid #e6e1d3;display:flex;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -2px 12px rgba(0,0,0,.06)}
+.bnav button{flex:1;border:none;background:none;padding:8px 0 10px;font-size:.72rem;color:var(--mut);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.bnav button i{font-style:normal;font-size:1.35rem}
+.bnav button.on{color:var(--g);font-weight:700}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:20px;font-size:.9rem;z-index:60;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:.92}
+.note{font-size:.8rem;color:var(--mut);line-height:1.7}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>وِرْدُ الحُفَّاظ</h1>
+  <div class="mnav">
+    <button class="ib" id="prev" type="button">›</button>
+    <select id="selMonth"></select>
+    <select id="selYear"></select>
+    <button class="ib" id="next" type="button">‹</button>
+  </div>
+  <div class="saved" id="savedLbl">✓ المعطيات محفوظة على هذا الجهاز</div>
+</div>
+
+<div class="wrap">
+<section id="v-cal">
+  <div class="card">
+    <div class="cal" id="cal"></div>
+    <div class="legend">
+      <span><i style="background:var(--doneBg);border-color:var(--done)"></i>منجز</span>
+      <span><i style="background:var(--partBg);border-color:var(--part)"></i>جزئي</span>
+      <span><i style="background:var(--missBg);border-color:var(--miss)"></i>غير منجز</span>
+      <span><i style="background:var(--planBg);border-color:var(--plan)"></i>مُخطَّط</span>
+    </div>
+  </div>
+  <div class="card" id="dayCard"></div>
+</section>
+
+<section id="v-goals" class="hide">
+  <div class="card">
+    <div class="ttl"><span>أهداف شهر <span id="gMonth"></span></span></div>
+    <div class="btns" style="margin-top:0"><button class="btn pri" type="button" id="bulkBtn">🗓 تخطيط أهداف لفترة</button></div>
+    <div class="btns">
+      <button class="btn sm" type="button" id="copyPrev">نسخ أهداف الشهر السابق</button>
+      <button class="btn sm no" type="button" id="clearMonth">حذف أهداف الشهر</button>
+    </div>
+  </div>
+  <div class="card"><div id="gList"></div></div>
+</section>
+
+<section id="v-stats" class="hide">
+  <div class="card">
+    <div class="ttl">حصيلة شهر <span id="sMonthLbl"></span></div>
+    <div class="stats">
+      <div class="stat"><b id="sRate">–</b><span>نسبة الإنجاز</span></div>
+      <div class="stat"><b id="sHizb">0</b><span>أحزاب رُوجعت</span></div>
+      <div class="stat"><b id="sStreak">0</b><span>أيام متتالية</span></div>
+      <div class="stat"><b id="sDone" style="color:var(--done)">0</b><span>أيام منجزة</span></div>
+      <div class="stat"><b id="sPart" style="color:var(--part)">0</b><span>أيام جزئية</span></div>
+      <div class="stat"><b id="sMiss" style="color:var(--miss)">0</b><span>أيام غير منجزة</span></div>
+    </div>
+    <div id="monthMsg"></div>
+  </div>
+  <div class="card">
+    <div class="ttl">حصيلة سنة <span id="yLbl"></span></div>
+    <div class="months" id="months"></div>
+    <div id="yearMsg"></div>
+  </div>
+</section>
+
+<section id="v-sur" class="hide">
+  <div class="card">
+    <div class="ttl">سور القرآن الكريم – رواية قالون عن نافع</div>
+    <input class="inp" id="surQ" type="search" placeholder="ابحث باسم السورة أو رقمها...">
+    <div id="surTbl" style="margin-top:8px"></div>
+  </div>
+</section>
+
+<section id="v-set" class="hide">
+  <div class="card">
+    <div class="ttl">النسخة الاحتياطيّة</div>
+    <p class="note">المعطيات تُحفظ تلقائيًّا على هذا الجهاز. صدّر نسخة احتياطيّة من حين لآخر، أو لنقل معطياتك إلى جهاز آخر.</p>
+    <div class="btns">
+      <button class="btn pri" type="button" id="exp">⬇ تصدير المعطيات</button>
+      <label class="btn" style="text-align:center">⬆ استيراد نسخة<input type="file" id="imp" accept=".json,application/json,text/plain" class="hide"></label>
+    </div>
+    <p class="note" id="storeInfo" style="margin-top:10px"></p>
+  </div>
+  <div class="card">
+    <div class="ttl">حول التطبيق</div>
+    <p class="note">• عدد الآيات حسب رواية قالون عن نافع (العدّ المدني الأوّل، 6214 آية).<br>
+    • حجم كلّ سورة بالأحزاب محسوب على التقسيم المعتمد (60 حزبًا)، وهو تقريبي حين تبدأ السورة أو تنتهي داخل ربع حزب؛ وقد تختلف مواضع بعض الأرباع قليلًا في المصحف التونسي.<br>
+    • «أيام متتالية»: عدد الأيام المتتالية التي أُنجز فيها الهدف كاملًا.</p>
+    <div class="btns"><button class="btn no" type="button" id="wipe">حذف كلّ المعطيات</button></div>
+  </div>
+</section>
+</div>
+
+<nav class="bnav">
+  <button type="button" data-v="cal" class="on"><i>📅</i>التقويم</button>
+  <button type="button" data-v="goals"><i>🎯</i>الأهداف</button>
+  <button type="button" data-v="stats"><i>📊</i>الحصيلة</button>
+  <button type="button" data-v="sur"><i>📖</i>السور</button>
+  <button type="button" data-v="set"><i>⚙️</i>الإعدادات</button>
+</nav>
+
+<div class="ov" id="ovEdit"><div class="sheet">
+  <div class="grab"></div>
+  <h2 id="eTitle">تعديل الهدف</h2>
+  <div class="sub" id="eSub"></div>
+  <span class="lbl">طريقة تحديد الهدف</span>
+  <div class="seg"><button type="button" id="mH" class="on">بعدد الأحزاب</button><button type="button" id="mS">باختيار السور</button></div>
+  <div id="pH">
+    <span class="lbl">عدد الأحزاب</span>
+    <div class="step"><button type="button" id="tMinus">−</button><input class="inp" id="eTarget" type="number" inputmode="decimal" min="0" max="60" step="0.25"><button type="button" id="tPlus">+</button></div>
+    <div class="chips" id="tChips"></div>
+    <span class="lbl">ابتداءً من الحزب (اختياري)</span>
+    <input class="inp" id="eFrom" type="number" inputmode="numeric" min="1" max="60" placeholder="مثال: 12">
+  </div>
+  <div id="pS" class="hide">
+    <span class="lbl">اختر السور</span>
+    <input class="inp" id="eSearch" type="search" placeholder="ابحث عن سورة...">
+    <div class="slist" id="eList"></div>
+    <div class="sum" id="eSum"></div>
+  </div>
+  <span class="lbl">ملاحظات</span>
+  <textarea class="inp" id="eNote" placeholder="مواضع الخطأ، المتشابهات، ملاحظات الشيخ..."></textarea>
+  <label class="chk"><input type="checkbox" id="eRepeat"> تطبيق نفس الهدف على بقيّة أيام الشهر</label>
+  <label class="chk hide" id="eOverWrap" style="margin-right:28px"><input type="checkbox" id="eOver"> استبدال الأهداف الموجودة أيضًا</label>
+  <div class="sfoot">
+    <button class="btn" type="button" data-close>إلغاء</button>
+    <button class="btn pri" type="button" id="eSave">حفظ الهدف</button>
+  </div>
+</div></div>
+
+<div class="ov" id="ovDone"><div class="sheet">
+  <div class="grab"></div>
+  <h2>تسجيل الإنجاز</h2>
+  <div class="sub" id="dSub"></div>
+  <div id="dH">
+    <span class="lbl">ما راجعته فعلًا (بالأحزاب)</span>
+    <div class="step"><button type="button" id="dMinus">−</button><input class="inp" id="dVal" type="number" inputmode="decimal" min="0" max="60" step="0.25"><button type="button" id="dPlus">+</button></div>
+  </div>
+  <div id="dS" class="hide">
+    <span class="lbl">علّم السور التي راجعتها</span>
+    <div class="slist" id="dList"></div>
+  </div>
+  <div class="pbar"><div id="dBar"></div></div>
+  <div id="dMsg"></div>
+  <div class="sfoot">
+    <button class="btn" type="button" data-close>إلغاء</button>
+    <button class="btn pri" type="button" id="dSave">حفظ</button>
+  </div>
+</div></div>
+
+<div class="ov" id="ovBulk"><div class="sheet">
+  <div class="grab"></div>
+  <h2>تخطيط أهداف لفترة</h2>
+  <div class="row2">
+    <div><span class="lbl">من</span><input class="inp" type="date" id="bFrom"></div>
+    <div><span class="lbl">إلى</span><input class="inp" type="date" id="bTo"></div>
+  </div>
+  <span class="lbl">أيام الأسبوع</span>
+  <div class="wdays" id="bDays"></div>
+  <span class="lbl">طريقة تحديد الهدف</span>
+  <div class="seg"><button type="button" id="bmH" class="on">بعدد الأحزاب</button><button type="button" id="bmS">باختيار السور</button></div>
+  <div id="bpH">
+    <span class="lbl">عدد الأحزاب يوميًّا</span>
+    <div class="step"><button type="button" id="bMinus">−</button><input class="inp" id="bTarget" type="number" inputmode="decimal" min="0" max="60" step="0.25" value="1"><button type="button" id="bPlus">+</button></div>
+    <label class="chk"><input type="checkbox" id="bSeq"> توزيع متسلسل للأحزاب (يوم 1 من الحزب…، ثمّ ما بعده…)</label>
+    <div id="bSeqWrap" class="hide"><span class="lbl">البداية من الحزب</span><input class="inp" type="number" id="bStart" min="1" max="60" value="1"></div>
+  </div>
+  <div id="bpS" class="hide">
+    <input class="inp" id="bSearch" type="search" placeholder="ابحث عن سورة..." style="margin-top:8px">
+    <div class="slist" id="bList"></div>
+    <div class="sum" id="bSum"></div>
+  </div>
+  <label class="chk"><input type="checkbox" id="bOver"> استبدال الأهداف الموجودة في هذه الفترة</label>
+  <div class="sum" id="bInfo"></div>
+  <div class="sfoot">
+    <button class="btn" type="button" data-close>إلغاء</button>
+    <button class="btn pri" type="button" id="bSave">تطبيق</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+var SUR=[["الفاتحة", 0.0547, 7, 1, 1], ["البقرة", 4.7509, 285, 1, 5], ["آل عمران", 2.6944, 200, 5, 8], ["النساء", 3.0, 175, 8, 11], ["المائدة", 2.125, 122, 11, 13], ["الأنعام", 2.375, 167, 13, 15], ["الأعراف", 2.5, 206, 16, 18], ["الأنفال", 1.0, 76, 18, 19], ["التوبة", 2.1111, 130, 19, 21], ["يونس", 1.3389, 109, 21, 22], ["هود", 1.4818, 121, 22, 24], ["يوسف", 1.2515, 111, 24, 25], ["الرعد", 0.6917, 44, 25, 26], ["إبراهيم", 0.625, 54, 26, 26], ["الحجر", 0.5, 99, 27, 27], ["النحل", 1.5, 128, 27, 28], ["الإسراء", 1.1121, 110, 29, 30], ["الكهف", 1.2288, 105, 30, 31], ["مريم", 0.6591, 99, 31, 31], ["طه", 1.0, 134, 32, 32], ["الأنبياء", 1.0, 111, 33, 33], ["الحج", 1.0, 76, 34, 34], ["المؤمنون", 0.75, 119, 35, 35], ["النور", 1.0, 62, 35, 36], ["الفرقان", 0.75, 77, 36, 37], ["الشعراء", 1.0, 226, 37, 38], ["النمل", 0.8804, 95, 38, 39], ["القصص", 1.1196, 88, 39, 40], ["العنكبوت", 0.75, 69, 40, 41], ["الروم", 0.5625, 59, 41, 41], ["لقمان", 0.3288, 33, 41, 42], ["السجدة", 0.3587, 30, 42, 42], ["الأحزاب", 1.1522, 73, 42, 43], ["سبأ", 0.6957, 54, 43, 44], ["فاطر", 0.4412, 46, 44, 44], ["يس", 0.5943, 82, 44, 45], ["الصافات", 0.7805, 182, 45, 46], ["ص", 0.5464, 86, 46, 46], ["الزمر", 0.7898, 72, 46, 47], ["غافر", 0.9286, 84, 47, 48], ["فصلت", 0.6714, 53, 48, 49], ["الشورى", 0.6788, 50, 49, 49], ["الزخرف", 0.6395, 89, 49, 50], ["الدخان", 0.2807, 56, 50, 50], ["الجاثية", 0.3009, 36, 50, 50], ["الأحقاف", 0.4062, 34, 51, 51], ["محمد", 0.409, 39, 51, 51], ["الفتح", 0.4348, 29, 51, 52], ["الحجرات", 0.2903, 18, 52, 52], ["ق", 0.3066, 45, 52, 52], ["الذاريات", 0.2946, 60, 52, 53], ["الطور", 0.2359, 47, 53, 53], ["النجم", 0.3281, 61, 53, 53], ["القمر", 0.2944, 55, 53, 53], ["الرحمن", 0.25, 77, 54, 54], ["الواقعة", 0.3986, 99, 54, 54], ["الحديد", 0.3514, 28, 54, 54], ["المجادلة", 0.3684, 21, 55, 55], ["الحشر", 0.3066, 24, 55, 55], ["الممتحنة", 0.1583, 13, 55, 55], ["الصف", 0.1667, 14, 55, 55], ["الجمعة", 0.1964, 11, 56, 56], ["المنافقون", 0.1305, 11, 56, 56], ["التغابن", 0.1731, 18, 56, 56], ["الطلاق", 0.25, 12, 56, 56], ["التحريم", 0.25, 12, 56, 56], ["الملك", 0.25, 31, 57, 57], ["القلم", 0.25, 52, 57, 57], ["الحاقة", 0.1857, 52, 57, 57], ["المعارج", 0.1847, 44, 57, 57], ["نوح", 0.1296, 30, 57, 57], ["الجن", 0.1489, 28, 58, 58], ["المزمل", 0.1054, 18, 58, 58], ["المدثر", 0.2456, 55, 58, 58], ["القيامة", 0.1724, 39, 58, 58], ["الإنسان", 0.1292, 31, 58, 58], ["المرسلات", 0.1984, 50, 58, 58], ["النبأ", 0.1163, 40, 59, 59], ["النازعات", 0.1337, 45, 59, 59], ["عبس", 0.1479, 42, 59, 59], ["التكوير", 0.1021, 29, 59, 59], ["الانفطار", 0.0864, 19, 59, 59], ["المطففين", 0.1636, 36, 59, 59], ["الانشقاق", 0.0977, 25, 59, 59], ["البروج", 0.0859, 22, 59, 59], ["الطارق", 0.0664, 17, 59, 59], ["الأعلى", 0.0633, 19, 60, 60], ["الغاشية", 0.0867, 26, 60, 60], ["الفجر", 0.1, 32, 60, 60], ["البلد", 0.0746, 20, 60, 60], ["الشمس", 0.056, 15, 60, 60], ["الليل", 0.0784, 21, 60, 60], ["الضحى", 0.041, 11, 60, 60], ["الشرح", 0.0312, 8, 60, 60], ["التين", 0.0312, 8, 60, 60], ["العلق", 0.0742, 20, 60, 60], ["القدر", 0.0195, 5, 60, 60], ["البينة", 0.0312, 8, 60, 60], ["الزلزلة", 0.0312, 9, 60, 60], ["العاديات", 0.0404, 11, 60, 60], ["القارعة", 0.0335, 10, 60, 60], ["التكاثر", 0.0244, 8, 60, 60], ["العصر", 0.0091, 3, 60, 60], ["الهمزة", 0.0274, 9, 60, 60], ["الفيل", 0.0152, 5, 60, 60], ["قريش", 0.0122, 5, 60, 60], ["الماعون", 0.0213, 6, 60, 60], ["الكوثر", 0.0091, 3, 60, 60], ["الكافرون", 0.0183, 6, 60, 60], ["النصر", 0.0091, 3, 60, 60], ["المسد", 0.0152, 5, 60, 60], ["الإخلاص", 0.0122, 4, 60, 60], ["الفلق", 0.0152, 5, 60, 60], ["الناس", 0.0183, 6, 60, 60]];
+var MONTHS=['جانفي','فيفري','مارس','أفريل','ماي','جوان','جويلية','أوت','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+var WD=['إثن','ثلا','أرب','خمي','جمع','سبت','أحد'];
+var WDfull=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+var KEY='wird_alhuffaz_v1';
+var MSG={
+ done:[['بارك الله فيك وجزاك خيرًا، أتممتَ وِردك اليوم.','«لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ» [إبراهيم: 7]'],
+  ['أحسنت! ثباتك على المراجعة نعمة فاحمد الله عليها.','«أحبُّ الأعمال إلى الله أدومُها وإن قلّ» متفق عليه'],
+  ['ما شاء الله تبارك الله، هدف منجز بالكامل.','«الماهر بالقرآن مع السفرة الكرام البررة» متفق عليه'],
+  ['هنيئًا لك، زادك الله حفظًا وإتقانًا.','«خيركم من تعلّم القرآن وعلّمه» رواه البخاري'],
+  ['الحمد لله على التوفيق، واصل على هذا الدرب.','«اقرؤوا القرآن فإنه يأتي يوم القيامة شفيعًا لأصحابه» رواه مسلم']],
+ part:[['خطوة طيّبة، والقليل الدائم خير من الكثير المنقطع. أكمل ما تبقّى بإذن الله.','«أحبُّ الأعمال إلى الله أدومُها وإن قلّ» متفق عليه'],
+  ['أنجزت جزءًا مهمًّا، فلا تستصغر جهدك واستعن بالله على البقيّة.','«وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ» [القمر: 17]'],
+  ['قاربت الهدف، اجعل الغد أفضل من اليوم.','«يُقال لصاحب القرآن: اقرأ وارتقِ ورتّل...» رواه أبو داود والترمذي']],
+ miss:[['تعاهد حفظك، فالقرآن سريع التفلّت. عوّض ما فاتك ولا تيأس.','«تعاهدوا هذا القرآن، فوالذي نفس محمد بيده لهو أشدّ تفلّتًا من الإبل في عُقُلها» متفق عليه'],
+  ['لا تجعل يومك يمضي بلا نصيب من كتاب الله، وابدأ من جديد.','«وَقَالَ الرَّسُولُ يَا رَبِّ إِنَّ قَوْمِي اتَّخَذُوا هَذَا الْقُرْآنَ مَهْجُورًا» [الفرقان: 30]'],
+  ['الحافظ كصاحب الإبل المعقّلة؛ إن تعاهدها أمسكها. استدرك وِردك.','«إن عاهد عليها أمسكها، وإن أطلقها ذهبت» متفق عليه']],
+ plan:[['هدف مسجَّل، أعانك الله على إتمامه.','«إِنَّ هَذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ» [الإسراء: 9]'],
+  ['استعن بالله ولا تعجز، وابدأ بوِردك في أوّل النهار.','«احرص على ما ينفعك واستعن بالله ولا تعجز» رواه مسلم']]
+};
+var data={},canSave=true;
+try{data=JSON.parse(localStorage.getItem(KEY)||'{}')||{};localStorage.setItem('__t','1');localStorage.removeItem('__t');}catch(e){canSave=false;}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(data));setSaved(true);}catch(e){setSaved(false);}}
+function setSaved(ok){var l=$('savedLbl');l.innerHTML=ok?'✓ المعطيات محفوظة على هذا الجهاز':'⚠ تعذّر الحفظ في هذا العارض';l.style.color=ok?'':'#ffd24d';}
+function $(id){return document.getElementById(id);}
+function fmt(v){return String(Math.round(v*100)/100);}
+function pad(n){return n<10?'0'+n:''+n;}
+function key(y,m,d){return y+'-'+pad(m+1)+'-'+pad(d);}
+function parseKey(k){var p=k.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+function dKey(dt){return key(dt.getFullYear(),dt.getMonth(),dt.getDate());}
+function longDate(k){var d=parseKey(k);return WDfull[d.getDay()]+' '+d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear();}
+function hsh(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%9973;return h;}
+function sumS(list){var t=0;for(var i=0;i<(list||[]).length;i++)t+=SUR[list[i]-1][1];return t;}
+function toast(t){var x=$('toast');x.innerHTML=t;x.className='toast show';clearTimeout(x._t);x._t=setTimeout(function(){x.className='toast';},1800);}
+function todayKey(){return dKey(new Date());}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+var now=new Date(),curY=now.getFullYear(),curM=now.getMonth(),selK=todayKey(),view='cal';
+
+function info(k){
+  var e=data[k];if(!e)return null;
+  var target=e.mode=='s'?sumS(e.surahs):(+e.target||0);
+  var done=e.mode=='s'?sumS(e.doneS):(+e.done||0);
+  if(!(target>0))return null;
+  var pct=Math.min(100,done/target*100),st;
+  if(pct>=99.5)st='done';else if(done>0)st='part';else st=(k<todayKey()?'miss':'plan');
+  return {target:target,done:done,pct:pct,st:st};
+}
+var COL={done:'var(--done)',part:'var(--part)',miss:'var(--miss)',plan:'var(--plan)'};
+function msgBox(st,seed,prefix){var a=MSG[st],m=a[hsh(seed)%a.length];return '<div class="msg m-'+st+'">'+(prefix||'')+m[0]+'<small>'+m[1]+'</small></div>';}
+function goalText(e,short){
+  if(!e)return '';
+  if(e.mode=='s'){var n=(e.surahs||[]).map(function(i){return SUR[i-1][0];});if(short&&n.length>3)return n.slice(0,3).join('، ')+' +'+(n.length-3);return n.join('، ');}
+  var t=fmt(+e.target||0)+' حزب';
+  if(e.from){var to=Math.ceil(+e.from+(+e.target)-1);t+=' (من الحزب '+e.from+(to>e.from?' إلى '+Math.min(60,to):'')+')';}
+  return t;
+}
+function fillSel(){
+  var ys={},y,cy=new Date().getFullYear();for(y=cy-3;y<=cy+5;y++)ys[y]=1;ys[curY]=1;
+  for(var k in data)ys[+k.substr(0,4)]=1;
+  var arr=Object.keys(ys).map(Number).sort(),h='';
+  arr.forEach(function(v){h+='<option value="'+v+'"'+(v==curY?' selected':'')+'>'+v+'</option>';});
+  $('selYear').innerHTML=h;h='';
+  MONTHS.forEach(function(m,i){h+='<option value="'+i+'"'+(i==curM?' selected':'')+'>'+m+'</option>';});
+  $('selMonth').innerHTML=h;
+}
+function renderCal(){
+  var h='';WD.forEach(function(w){h+='<div class="wd">'+w+'</div>';});
+  var off=(new Date(curY,curM,1).getDay()+6)%7,days=new Date(curY,curM+1,0).getDate(),tk=todayKey();
+  for(var i=0;i<off;i++)h+='<div class="day empty"></div>';
+  for(var d=1;d<=days;d++){
+    var k=key(curY,curM,d),inf=info(k),e=data[k],c='day';
+    if(inf)c+=' st-'+inf.st;if(k==tk)c+=' today';if(k==selK)c+=' cur';
+    h+='<div class="'+c+'" data-k="'+k+'">'+(e&&e.note?'<span class="nt">📝</span>':'')+'<span class="d">'+d+'</span>'+
+      (inf?'<span class="p">'+(inf.st=='plan'?fmt(inf.target)+'ح':Math.round(inf.pct)+'%')+'</span>':'')+'</div>';
+  }
+  $('cal').innerHTML=h;
+  [].forEach.call($('cal').querySelectorAll('[data-k]'),function(el){el.onclick=function(){selK=this.getAttribute('data-k');renderCal();};});
+  renderDay();
+}
+function renderDay(){
+  var k=selK,e=data[k],inf=info(k),h='<div class="dtitle">'+longDate(k)+(k==todayKey()?' <span style="color:var(--gold)">(اليوم)</span>':'')+'</div>';
+  if(!inf){
+    h+='<div class="goal">لا يوجد هدف لهذا اليوم.</div>';
+    h+='<div class="btns"><button class="btn pri" type="button" id="dcAdd">＋ إضافة هدف</button></div>';
+  }else{
+    h+='<div class="goal">🎯 الهدف: <b>'+esc(goalText(e))+'</b>'+(e.mode=='s'?' <span class="note">('+fmt(inf.target)+' حزب)</span>':'')+
+      '<br>✅ المنجز: <b>'+fmt(inf.done)+' / '+fmt(inf.target)+' حزب ('+Math.round(inf.pct)+'%)</b>'+(e.note?'<br>📝 '+esc(e.note):'')+'</div>';
+    h+='<div class="pbar"><div style="width:'+inf.pct+'%;background:'+COL[inf.st]+'"></div></div>';
+    h+=msgBox(inf.st,k);
+    h+='<div class="btns"><button class="btn ok" type="button" id="dcFull">✓ أنجزتُ كاملًا</button><button class="btn warn" type="button" id="dcPart">◐ جزئيًّا</button><button class="btn no" type="button" id="dcNone">✗ لم أُنجز</button></div>';
+    h+='<div class="btns"><button class="btn" type="button" id="dcEdit">✏️ تعديل الهدف</button><button class="btn" type="button" id="dcDel">🗑 حذف</button></div>';
+  }
+  $('dayCard').innerHTML=h;
+  if($('dcAdd'))$('dcAdd').onclick=function(){openEdit(k);};
+  if($('dcEdit'))$('dcEdit').onclick=function(){openEdit(k);};
+  if($('dcDel'))$('dcDel').onclick=function(){delDay(k);};
+  if($('dcFull'))$('dcFull').onclick=function(){setDone(k,'full');};
+  if($('dcNone'))$('dcNone').onclick=function(){setDone(k,'none');};
+  if($('dcPart'))$('dcPart').onclick=function(){openDone(k);};
+}
+function setDone(k,how){
+  var e=data[k];if(!e)return;
+  if(e.mode=='s')e.doneS=how=='full'?(e.surahs||[]).slice():[];else e.done=how=='full'?(+e.target||0):0;
+  persist();refresh();toast(how=='full'?'بارك الله فيك ✓':'تمّ التسجيل');
+}
+function delDay(k){if(confirm('حذف هدف يوم '+longDate(k)+'؟')){delete data[k];persist();refresh();toast('تمّ الحذف');}}
+function renderGoals(){
+  $('gMonth').innerHTML=MONTHS[curM]+' '+curY;
+  var days=new Date(curY,curM+1,0).getDate(),h='';
+  for(var d=1;d<=days;d++){
+    var k=key(curY,curM,d),e=data[k],inf=info(k);if(!inf)continue;
+    h+='<div class="gl"><span class="dot" style="background:'+COL[inf.st]+'"></span><div class="tx"><b>'+longDate(k)+'</b><span>'+
+      esc(goalText(e,true))+' · '+(inf.st=='plan'?'مخطَّط':Math.round(inf.pct)+'%')+'</span></div>'+
+      '<button class="icb" type="button" data-ed="'+k+'">✏️</button><button class="icb" type="button" data-del="'+k+'">🗑</button></div>';
+  }
+  $('gList').innerHTML=h||'<div class="empty-t">لا توجد أهداف في هذا الشهر.<br>اضغط «تخطيط أهداف لفترة» أو اختر يومًا من التقويم.</div>';
+  [].forEach.call($('gList').querySelectorAll('[data-ed]'),function(b){b.onclick=function(){openEdit(this.getAttribute('data-ed'));};});
+  [].forEach.call($('gList').querySelectorAll('[data-del]'),function(b){b.onclick=function(){delDay(this.getAttribute('data-del'));};});
+}
+function monthScore(y,m){
+  var days=new Date(y,m+1,0).getDate(),tk=todayKey(),r={past:0,sc:0,hz:0,done:0,part:0,miss:0};
+  for(var d=1;d<=days;d++){var k=key(y,m,d),inf=info(k);if(!inf)continue;r.hz+=inf.done;
+    if(k<tk||(k==tk&&inf.done>0)){r.past++;r.sc+=inf.pct/100;r[inf.st]++;}}
+  r.rate=r.past?r.sc/r.past*100:null;return r;
+}
+function streak(){
+  var d=new Date(),n=0,inf=info(dKey(d));
+  if(!inf||inf.st!='done')d.setDate(d.getDate()-1);
+  while(true){inf=info(dKey(d));if(inf&&inf.st=='done'){n++;d.setDate(d.getDate()-1);}else break;}
+  return n;
+}
+function rateSt(r){return r>=85?'done':(r>=50?'part':'miss');}
+function renderStats(){
+  var r=monthScore(curY,curM);
+  $('sMonthLbl').innerHTML=MONTHS[curM]+' '+curY;
+  $('sRate').innerHTML=r.rate===null?'–':Math.round(r.rate)+'%';
+  $('sHizb').innerHTML=fmt(r.hz);$('sStreak').innerHTML=streak();
+  $('sDone').innerHTML=r.done;$('sPart').innerHTML=r.part;$('sMiss').innerHTML=r.miss;
+  $('monthMsg').innerHTML=r.rate===null?'<div class="msg m-plan">لا توجد أهداف مُقيَّمة بعد في هذا الشهر.<small>«أحبُّ الأعمال إلى الله أدومُها وإن قلّ» متفق عليه</small></div>':msgBox(rateSt(r.rate),'m'+curY+curM);
+  $('yLbl').innerHTML=curY;var h='',tp=0,ts=0,th=0;
+  for(var m=0;m<12;m++){var x=monthScore(curY,m);tp+=x.past;ts+=x.sc;th+=x.hz;
+    var st=x.rate===null?null:rateSt(x.rate);
+    h+='<div class="mo'+(st?' st-'+st:'')+'" data-m="'+m+'"'+(m==curM?' style="outline:3px solid var(--gold)"':'')+'><b>'+MONTHS[m]+'</b>'+(x.rate===null?'—':Math.round(x.rate)+'% · '+fmt(x.hz)+'ح')+'</div>';}
+  $('months').innerHTML=h;
+  [].forEach.call($('months').querySelectorAll('.mo'),function(el){el.onclick=function(){curM=+this.getAttribute('data-m');refresh();};});
+  if(!tp)$('yearMsg').innerHTML='<div class="msg m-plan">لا توجد معطيات مُقيَّمة لهذه السنة بعد.</div>';
+  else{var yr=ts/tp*100;$('yearMsg').innerHTML=msgBox(rateSt(yr),'y'+curY,'<b>نسبة إنجاز السنة '+Math.round(yr)+'% · مجموع ما رُوجع '+fmt(th)+' حزبًا (≈ '+fmt(th/60)+' ختمة)</b><br>');}
+}
+function renderSur(){
+  var q=$('surQ').value.trim(),h='';
+  SUR.forEach(function(s,i){var n=i+1;if(q&&s[0].indexOf(q)<0&&String(n)!==q)return;
+    h+='<div class="sr"><span class="n">'+n+'</span><span class="nm"><b>'+s[0]+'</b><span>'+s[2]+' آية · الحزب '+(s[3]==s[4]?s[3]:s[3]+'–'+s[4])+'</span></span><span class="hz">'+fmt(s[1])+' حزب<br><span class="note">'+fmt(s[1]/2)+' جزء</span></span></div>';});
+  $('surTbl').innerHTML=h||'<div class="empty-t">لا توجد نتائج.</div>';
+}
+$('surQ').oninput=renderSur;
+
+function openOv(id){$(id).className='ov show';document.body.style.overflow='hidden';}
+function closeOv(){[].forEach.call(document.querySelectorAll('.ov'),function(o){o.className='ov';});document.body.style.overflow='';}
+[].forEach.call(document.querySelectorAll('[data-close]'),function(b){b.onclick=closeOv;});
+[].forEach.call(document.querySelectorAll('.ov'),function(o){o.onclick=function(ev){if(ev.target===o)closeOv();};});
+function surList(boxId,search,selected,onChange,only){
+  var q=search?search.trim():'',h='';
+  var idx=only||SUR.map(function(_,i){return i+1;});
+  idx.forEach(function(n){var s=SUR[n-1];if(q&&s[0].indexOf(q)<0&&String(n)!==q)return;
+    h+='<label class="sit"><input type="checkbox" data-n="'+n+'"'+(selected.indexOf(n)>-1?' checked':'')+'><span>'+n+'. '+s[0]+'</span><span class="h">'+fmt(s[1])+' حزب</span></label>';});
+  $(boxId).innerHTML=h||'<div class="empty-t">لا توجد سور.</div>';
+  [].forEach.call($(boxId).querySelectorAll('input'),function(cb){cb.onchange=function(){
+    var n=+this.getAttribute('data-n'),i=selected.indexOf(n);
+    if(this.checked&&i<0)selected.push(n);if(!this.checked&&i>-1)selected.splice(i,1);
+    selected.sort(function(a,b){return a-b;});if(onChange)onChange();};});
+}
+function chips(boxId,input){
+  var v=[0.25,0.5,1,2,3,4,5,10],h='';
+  v.forEach(function(x){h+='<button type="button" class="chip" data-v="'+x+'">'+(x==0.25?'¼':x==0.5?'½':x)+'</button>';});
+  $(boxId).innerHTML=h;
+  [].forEach.call($(boxId).querySelectorAll('.chip'),function(c){c.onclick=function(){$(input).value=this.getAttribute('data-v');};});
+}
+function stepper(minus,plus,input,cb){
+  function ch(d){var v=parseFloat($(input).value)||0;v=Math.max(0,Math.min(60,Math.round((v+d)*4)/4));$(input).value=v;if(cb)cb();}
+  $(minus).onclick=function(){ch(-0.5);};$(plus).onclick=function(){ch(0.5);};
+}
+var ed={k:null,mode:'h',s:[]};
+function setEMode(m){ed.mode=m;$('mH').className=m=='h'?'on':'';$('mS').className=m=='s'?'on':'';
+  $('pH').className=m=='h'?'':'hide';$('pS').className=m=='s'?'':'hide';if(m=='s')drawE();}
+function drawE(){surList('eList',$('eSearch').value,ed.s,eSum);eSum();}
+function eSum(){var t=sumS(ed.s);$('eSum').innerHTML=ed.s.length?'المختار: '+ed.s.length+' سورة = <b>'+fmt(t)+' حزب</b> ('+fmt(t/2)+' جزء)':'لم تختر أيّ سورة بعد.';}
+function openEdit(k){
+  var e=data[k]||{};ed.k=k;ed.s=(e.surahs||[]).slice();
+  $('eTitle').innerHTML=info(k)?'تعديل الهدف':'إضافة هدف';
+  $('eSub').innerHTML=longDate(k);
+  $('eTarget').value=e.mode!='s'&&e.target?e.target:'';
+  $('eFrom').value=e.from||'';$('eNote').value=e.note||'';$('eSearch').value='';
+  $('eRepeat').checked=false;$('eOver').checked=false;$('eOverWrap').className='chk hide';
+  setEMode(e.mode||'h');openOv('ovEdit');
+}
+$('mH').onclick=function(){setEMode('h');};$('mS').onclick=function(){setEMode('s');};
+$('eSearch').oninput=drawE;
+$('eRepeat').onchange=function(){$('eOverWrap').className=this.checked?'chk':'chk hide';};
+chips('tChips','eTarget');stepper('tMinus','tPlus','eTarget');
+$('eSave').onclick=function(){
+  var old=data[ed.k]||{},e={mode:ed.mode,note:$('eNote').value.trim()};
+  if(ed.mode=='h'){e.target=parseFloat($('eTarget').value)||0;var f=parseInt($('eFrom').value,10);if(f>0)e.from=Math.min(60,f);
+    e.done=old.mode=='h'?Math.min(+old.done||0,e.target||0):0;if(old.mode=='h'&&old.target>0&&old.done>=old.target)e.done=e.target;}
+  else{e.surahs=ed.s.slice();e.doneS=(old.doneS||[]).filter(function(n){return ed.s.indexOf(n)>-1;});}
+  var t=e.mode=='s'?sumS(e.surahs):e.target;
+  if(!(t>0)){alert('يرجى تحديد الهدف: عدد الأحزاب أو السور.');return;}
+  data[ed.k]=e;var cnt=1;
+  if($('eRepeat').checked){var d=parseKey(ed.k),m=d.getMonth(),over=$('eOver').checked;d.setDate(d.getDate()+1);
+    while(d.getMonth()==m){var k=dKey(d);if(!info(k)||over){var c={mode:e.mode,note:''};
+      if(e.mode=='h'){c.target=e.target;c.done=0;}else{c.surahs=e.surahs.slice();c.doneS=[];}data[k]=c;cnt++;}d.setDate(d.getDate()+1);}
+  }
+  persist();closeOv();refresh();toast(cnt>1?'تمّ حفظ الهدف لـ '+cnt+' أيام':'تمّ حفظ الهدف ✓');
+};
+var dn={k:null,s:[]};
+function openDone(k){
+  var e=data[k];if(!e)return;dn.k=k;dn.s=(e.doneS||[]).slice();
+  $('dSub').innerHTML=longDate(k)+' · الهدف: '+esc(goalText(e));
+  if(e.mode=='s'){$('dH').className='hide';$('dS').className='';surList('dList','',dn.s,liveDone,e.surahs);}
+  else{$('dH').className='';$('dS').className='hide';$('dVal').value=e.done||'';}
+  liveDone();openOv('ovDone');
+}
+function liveDone(){
+  var e=data[dn.k];if(!e)return;
+  var t=e.mode=='s'?sumS(e.surahs):+e.target,d=e.mode=='s'?sumS(dn.s):(parseFloat($('dVal').value)||0);
+  var p=Math.min(100,d/t*100),st=p>=99.5?'done':(d>0?'part':(dn.k<todayKey()?'miss':'plan'));
+  $('dBar').style.width=p+'%';$('dBar').style.background=COL[st];
+  $('dMsg').innerHTML=msgBox(st,dn.k,'<b>'+fmt(d)+' / '+fmt(t)+' حزب ('+Math.round(p)+'%)</b><br>');
+}
+$('dVal').oninput=liveDone;stepper('dMinus','dPlus','dVal',liveDone);
+$('dSave').onclick=function(){var e=data[dn.k];if(e.mode=='s')e.doneS=dn.s.slice();else e.done=parseFloat($('dVal').value)||0;
+  persist();closeOv();refresh();toast('تمّ التسجيل ✓');};
+var bk={mode:'h',s:[]};
+(function(){var h='',o=[1,2,3,4,5,6,0];o.forEach(function(d,i){h+='<label>'+WD[i]+'<input type="checkbox" value="'+d+'" checked></label>';});$('bDays').innerHTML=h;})();
+function setBMode(m){bk.mode=m;$('bmH').className=m=='h'?'on':'';$('bmS').className=m=='s'?'on':'';
+  $('bpH').className=m=='h'?'':'hide';$('bpS').className=m=='s'?'':'hide';if(m=='s')drawB();bInfo();}
+function drawB(){surList('bList',$('bSearch').value,bk.s,function(){bSum();bInfo();});bSum();}
+function bSum(){var t=sumS(bk.s);$('bSum').innerHTML=bk.s.length?'المختار: '+bk.s.length+' سورة = <b>'+fmt(t)+' حزب</b> يوميًّا':'لم تختر أيّ سورة بعد.';}
+function bDates(){
+  var a=$('bFrom').value,b=$('bTo').value,out=[];if(!a||!b)return out;
+  var wd=[].map.call($('bDays').querySelectorAll('input:checked'),function(i){return +i.value;});
+  var d=parseKey(a),e=parseKey(b),guard=0;
+  while(d<=e&&guard<800){if(wd.indexOf(d.getDay())>-1)out.push(dKey(d));d.setDate(d.getDate()+1);guard++;}
+  return out;
+}
+function bInfo(){var ds=bDates(),t=bk.mode=='s'?sumS(bk.s):(parseFloat($('bTarget').value)||0);
+  var ex=ds.filter(function(k){return info(k);}).length;
+  $('bInfo').innerHTML=ds.length?'سيُطبَّق على <b>'+ds.length+'</b> يومًا · المجموع ≈ <b>'+fmt(t*ds.length)+' حزب</b>'+(ex?'<br>منها '+ex+' أيام فيها أهداف سابقة'+($('bOver').checked?' (ستُستبدل)':' (ستبقى كما هي)'):''):'اختر الفترة وأيام الأسبوع.';}
+$('bulkBtn').onclick=function(){
+  var f=new Date(curY,curM,1),l=new Date(curY,curM+1,0),t=new Date();
+  if(t.getFullYear()==curY&&t.getMonth()==curM)f=t;
+  $('bFrom').value=dKey(f);$('bTo').value=dKey(l);$('bOver').checked=false;$('bSeq').checked=false;$('bSeqWrap').className='hide';
+  bk.s=[];$('bSearch').value='';setBMode('h');openOv('ovBulk');
+};
+$('bmH').onclick=function(){setBMode('h');};$('bmS').onclick=function(){setBMode('s');};
+$('bSearch').oninput=drawB;
+['bFrom','bTo','bTarget','bOver'].forEach(function(id){$(id).onchange=bInfo;$(id).oninput=bInfo;});
+$('bDays').onchange=bInfo;stepper('bMinus','bPlus','bTarget',bInfo);
+$('bSeq').onchange=function(){$('bSeqWrap').className=this.checked?'':'hide';};
+$('bSave').onclick=function(){
+  var ds=bDates(),over=$('bOver').checked,t=parseFloat($('bTarget').value)||0,n=0;
+  if(!ds.length){alert('اختر فترة صحيحة.');return;}
+  if(bk.mode=='h'&&!(t>0)){alert('حدّد عدد الأحزاب.');return;}
+  if(bk.mode=='s'&&!bk.s.length){alert('اختر السور.');return;}
+  var seq=bk.mode=='h'&&$('bSeq').checked,pos=(parseInt($('bStart').value,10)||1)-1;
+  ds.forEach(function(k){if(info(k)&&!over)return;var old=data[k]||{},c={mode:bk.mode,note:old.note||''};
+    if(bk.mode=='h'){c.target=t;c.done=0;if(seq){c.from=Math.floor(pos%60)+1;pos+=t;}}
+    else{c.surahs=bk.s.slice();c.doneS=[];}
+    data[k]=c;n++;});
+  persist();closeOv();refresh();toast('تمّ تخطيط '+n+' يومًا ✓');
+};
+$('copyPrev').onclick=function(){
+  var py=curM==0?curY-1:curY,pm=curM==0?11:curM-1,days=new Date(curY,curM+1,0).getDate(),pd=new Date(py,pm+1,0).getDate(),n=0;
+  for(var d=1;d<=days&&d<=pd;d++){var sk=key(py,pm,d),src=data[sk],k=key(curY,curM,d);
+    if(src&&info(sk)&&!info(k)){var c={mode:src.mode,note:''};
+      if(src.mode=='s'){c.surahs=(src.surahs||[]).slice();c.doneS=[];}else{c.target=src.target;c.done=0;if(src.from)c.from=src.from;}
+      data[k]=c;n++;}}
+  persist();refresh();toast(n?'تمّ نسخ '+n+' أهداف':'لا توجد أهداف لنسخها');
+};
+$('clearMonth').onclick=function(){
+  if(!confirm('حذف كلّ أهداف شهر '+MONTHS[curM]+' '+curY+'؟'))return;
+  var days=new Date(curY,curM+1,0).getDate();for(var d=1;d<=days;d++)delete data[key(curY,curM,d)];
+  persist();refresh();toast('تمّ الحذف');
+};
+$('exp').onclick=function(){
+  var name='ward_alhuffaz_'+todayKey()+'.json',json=JSON.stringify(data,null,1);
+  if(window.Android&&window.Android.saveFile){window.Android.saveFile(name,json);return;}
+  var blob=new Blob([json],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);toast('تمّ التصدير');
+};
+$('imp').onchange=function(){
+  var f=this.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){try{var o=JSON.parse(r.result),n=0;for(var k in o)if(/^\d{4}-\d{2}-\d{2}$/.test(k)){data[k]=o[k];n++;}persist();refresh();toast('تمّ استيراد '+n+' يومًا ✓');}catch(e){alert('الملف غير صالح.');}};
+  r.readAsText(f);this.value='';
+};
+$('wipe').onclick=function(){if(confirm('حذف كلّ المعطيات نهائيًّا؟ صدّر نسخة احتياطيّة قبل ذلك.')&&confirm('تأكيد الحذف؟')){data={};persist();refresh();toast('تمّ حذف كلّ المعطيات');}};
+function storeInfo(){$('storeInfo').innerHTML='عدد الأيام المسجّلة: <b>'+Object.keys(data).length+'</b>';}
+function showView(v){view=v;['cal','goals','stats','sur','set'].forEach(function(x){$('v-'+x).className=x==v?'':'hide';});
+  [].forEach.call(document.querySelectorAll('.bnav button'),function(b){b.className=b.getAttribute('data-v')==v?'on':'';});
+  refresh();window.scrollTo(0,0);}
+[].forEach.call(document.querySelectorAll('.bnav button'),function(b){b.onclick=function(){showView(this.getAttribute('data-v'));};});
+function goMonth(y,m){curY=y;curM=m;var t=new Date();selK=(t.getFullYear()==y&&t.getMonth()==m)?todayKey():key(y,m,1);refresh();}
+$('selYear').onchange=function(){goMonth(+this.value,curM);};
+$('selMonth').onchange=function(){goMonth(curY,+this.value);};
+$('prev').onclick=function(){if(curM==0)goMonth(curY-1,11);else goMonth(curY,curM-1);};
+$('next').onclick=function(){if(curM==11)goMonth(curY+1,0);else goMonth(curY,curM+1);};
+function refresh(){fillSel();
+  if(view=='cal')renderCal();if(view=='goals')renderGoals();if(view=='stats')renderStats();if(view=='sur')renderSur();if(view=='set')storeInfo();}
+setSaved(canSave);
+refresh();
+window.__back=function(){
+  if(document.querySelector('.ov.show')){closeOv();return true;}
+  if(view!='cal'){showView('cal');return true;}return false;};
+})();
+</script>
+</body>
+</html>
