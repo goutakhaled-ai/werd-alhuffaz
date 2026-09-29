@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="green_dark">#0B3D26</color>
+    <color name="bg">#F4F1E8</color>
+    <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/green_dark</item>
+        <item name="android:windowBackground">@color/bg</item>
+    </style>
+</resources>
